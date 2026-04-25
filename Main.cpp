@@ -10,6 +10,8 @@
 #include "Uteis.hpp"
 #include "Indicegenero.hpp"
 #include "Indicetipo.hpp"
+#include "listaordenadacinema.hpp"
+#include "listaordenadafilmes.hpp"
 
 using namespace std;
 
@@ -182,6 +184,34 @@ int main() {
     for(unsigned int i = 0; i < filmes.size(); i++){
         listaFIlmesGenero.inserir(&filmes.at(i));
     }
+
+    //Cria lista filmes ordenada para buscar por duracao
+    ListaOrdenadaFilmes filmesOrdenadosDuracao(filmes.size());
+    for(unsigned int i = 0; i < filmes.size(); i++){
+        filmesOrdenadosDuracao.inserir(&filmes.at(i));
+    }
+    //filmesOrdenadosDuracao.ordenar("duracao");
+
+    //Cria lista filmes ordenada para buscar por ano
+    ListaOrdenadaFilmes filmesOrdenadosAno = (filmes.size());
+    for(unsigned int i = 0; i < filmes.size(); i++){
+        filmesOrdenadosAno.inserir(&filmes.at(i));
+    }
+    //filmesOrdenadosAno.ordenar("ano");
+
+    //Cria lista de Cinemas ornadada para busca por preco
+    ListaOrdenadaCinemas cinemasOdenadosPorPreco(cinemas.size());
+    for(unsigned int i=0; i<cinemas.size(); i++){
+        cinemasOdenadosPorPreco.inserir(&cinemas.at(i));
+    }
+    //cinemasOdenadosPorPreco.ordenar("preco");
+
+    //Cria lista de cinemas ordenada para busca por distancia
+    ListaOrdenadaCinemas cinemasOdenadosPorDistancia(cinemas.size());
+    for(unsigned int i=0; i<cinemas.size(); i++){
+        cinemasOdenadosPorDistancia.inserir(&cinemas.at(i));
+    }
+    //cinemasOdenadosPorDistancia.ordenar("distancia");
 
     /* // verificação do hashlist da lista auxiliar de busca por tipos
     unsigned int hashX = listaFilmesTipo.calculaHash(filmes.at(1).getTipo());
