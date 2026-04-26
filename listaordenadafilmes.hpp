@@ -7,6 +7,10 @@
 
 
 class ListaOrdenadaFilmes{
+    private:
+    void mergeSort(int esquerda, int direita, std::string criterio);
+    void merge(int esquerda, int meio, int direita, std::string criterio);
+    
     public:
     std::vector<Filme*> lista;
     ListaOrdenadaFilmes();

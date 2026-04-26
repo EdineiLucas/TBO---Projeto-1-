@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <chrono>
+#include <cmath>
 
 #include "Filme.hpp"   
 #include "Cinema.hpp"
@@ -134,6 +135,7 @@ int main() {
     vector<Cinema> cinemas; // Vetor dos cinemas (lista dos cinemas)
     vector<Filme> filmes;   // Vetor dos filmes (lista dos filmes)
 
+    //***************ABERTURA DOS ARQUIVOS CRIAÇAO DE SS E AMAZENAMENTO NOS VETORES************ */
     if(!arquivoCinema.is_open()){  
         cout << "Erro! Arquivo não aberto" << endl;
         return 1;
@@ -152,78 +154,76 @@ int main() {
     getline(baseDadosCinema, linha); // Elimina a primeira linha 
     cinemas = criaVectorCinema(baseDadosCinema, cinemas); // preenche o vetor cinemas
 
-    /* // Conferindo se armazenou corretamente os cinemas no meu vetor de cinemas
-    for (Cinema c1 : cinemas){
-        cout << c1.getId() << "," << c1.getNome() << ", Lista de filmes" << endl;
-        vector<unsigned int> f1 = c1.getFilmesEmCartaz();
-        for (unsigned int f2 : f1){
-            cout << f2 << ",";
-        }
-        cout << endl;
-
-    }
-    */
-
     getline(baseDadosFilmes, linha); //Elimina primeira linha do arquivo filmes
     filmes = criaVectorFilme(baseDadosFilmes, filmes); // preenche o vetor filmes
 
-/*  //Verificar se armazenou os filmes
-    for (Filme f1 : filmes){
-        cout << f1.getId() << "nome: " << f1.getTituloPrimario() << endl;   
-    }
-*/
+    //*******************INICIALIZAÇÃO DAS LISTAS AUXILIARES**************** */
+    cout << "DEBUG 1: Inicializando listas auxiliares" << endl;
 
     //Cria lista auxilar de busca por tipo
     indicetipo listaFilmesTipo(10*20);
     for(unsigned int i=0; i<filmes.size(); i++){
         listaFilmesTipo.inserir(&filmes.at(i));
     }
+    cout << "DEBUG 2: Filme Lista tipo criada" << endl;
 
     //Cria lista para busca por Genero
     indicegenero listaFIlmesGenero(10*20);
     for(unsigned int i = 0; i < filmes.size(); i++){
         listaFIlmesGenero.inserir(&filmes.at(i));
     }
+    cout << "DEBUG 3: Filme Lista GENERO criada" << endl;
 
     //Cria lista filmes ordenada para buscar por duracao
     ListaOrdenadaFilmes filmesOrdenadosDuracao(filmes.size());
     for(unsigned int i = 0; i < filmes.size(); i++){
         filmesOrdenadosDuracao.inserir(&filmes.at(i));
     }
-    //filmesOrdenadosDuracao.ordenar("duracao");
+    filmesOrdenadosDuracao.ordenar("duracao");
+    cout << "DEBUG 4: Lista Filme DURACAO ORDENADA criada" << endl;
 
     //Cria lista filmes ordenada para buscar por ano
     ListaOrdenadaFilmes filmesOrdenadosAno = (filmes.size());
     for(unsigned int i = 0; i < filmes.size(); i++){
         filmesOrdenadosAno.inserir(&filmes.at(i));
     }
-    //filmesOrdenadosAno.ordenar("ano");
+    filmesOrdenadosAno.ordenar("ano");
+    cout << "DEBUG 5: Lista Filme ANO ORDENADA criada" << endl;
 
     //Cria lista de Cinemas ornadada para busca por preco
     ListaOrdenadaCinemas cinemasOdenadosPorPreco(cinemas.size());
     for(unsigned int i=0; i<cinemas.size(); i++){
         cinemasOdenadosPorPreco.inserir(&cinemas.at(i));
     }
-    //cinemasOdenadosPorPreco.ordenar("preco");
+    cinemasOdenadosPorPreco.ordenar("preco");
+    cout << "DEBUG 6: Lista Cinema PRECO ORDENADA criada" << endl;
 
     //Cria lista de cinemas ordenada para busca por distancia
-    ListaOrdenadaCinemas cinemasOdenadosPorDistancia(cinemas.size());
-    for(unsigned int i=0; i<cinemas.size(); i++){
-        cinemasOdenadosPorDistancia.inserir(&cinemas.at(i));
+    const int SEDE_X = 551867;
+    const int SEDE_Y = 416560;
+    vector<IndiceDistancia> listaBuscaDistancia;
+    listaBuscaDistancia.reserve(cinemas.size());
+    for(unsigned int i = 0; i < cinemas.size(); i++) {
+        IndiceDistancia novo_indice;
+        
+        // Calcula a distância usando a fórmula Euclidiana
+        novo_indice.distancia = sqrt(
+            pow(cinemas.at(i).getCoordenadaX() - SEDE_X, 2) + 
+            pow(cinemas.at(i).getCoordenadaY() - SEDE_Y, 2)
+        );
+        novo_indice.cinema = &cinemas.at(i);
+        
+        listaBuscaDistancia.push_back(novo_indice);
     }
-    //cinemasOdenadosPorDistancia.ordenar("distancia");
+    mergeSortDistancia(listaBuscaDistancia, 0, listaBuscaDistancia.size() - 1);
 
-    /* // verificação do hashlist da lista auxiliar de busca por tipos
-    unsigned int hashX = listaFilmesTipo.calculaHash(filmes.at(1).getTipo());
-    list<Filme*> listaRetorno = listaFilmesTipo.busca(hashX);
-    for(Filme* f : listaRetorno){
-        cout << f->getId() << " " << f->getTipo() << endl; 
-    } 
-    */
+    cout << "DEBUG 7: Lista DISTANCIA ORDENADA criada" << endl;
+    cout << "DEBUG 8: Chegou perto do fim" << endl;
 
     auto fim = chrono::high_resolution_clock::now();
     chrono::duration<double> tempoEmS = fim - inicio;
 
     cout << "Tempo em segundos: " << tempoEmS.count() << endl;
+    
     return 0;
 }
