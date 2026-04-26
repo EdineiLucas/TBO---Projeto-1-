@@ -47,52 +47,52 @@ int main() {
     filmes = criaVectorFilme(baseDadosFilmes, filmes); // preenche o vetor filmes
 
     //*******************INICIALIZAÇÃO DAS LISTAS AUXILIARES**************** */
-    cout << "DEBUG 1: Inicializando listas auxiliares" << endl;
+    cout << "Inicializando listas auxiliares" << endl;
 
     //Cria lista auxilar de busca por tipo
     indicetipo listaFilmesTipo(10*20);
-    for(unsigned int i=0; i<filmes.size(); i++){
+    for(unsigned int i=0; i<filmes.size(); i++){//cria rabela hash de tipos
         listaFilmesTipo.inserir(&filmes.at(i));
     }
-    cout << "DEBUG 2: Filme Lista tipo criada" << endl;
+    cout << "Filme Lista tipo criada" << endl;
 
     //Cria lista para busca por Genero
     indicegenero listaFIlmesGenero(10*20);
-    for(unsigned int i = 0; i < filmes.size(); i++){
+    for(unsigned int i = 0; i < filmes.size(); i++){//cria tabela hash de generos
         listaFIlmesGenero.inserir(&filmes.at(i));
     }
-    cout << "DEBUG 3: Filme Lista GENERO criada" << endl;
+    cout << "Filme Lista GENERO criada" << endl;
 
     //Cria lista filmes ordenada para buscar por duracao
     ListaOrdenadaFilmes filmesOrdenadosDuracao(filmes.size());
     for(unsigned int i = 0; i < filmes.size(); i++){
         filmesOrdenadosDuracao.inserir(&filmes.at(i));
     }
-    filmesOrdenadosDuracao.ordenar("duracao");
-    cout << "DEBUG 4: Filme lista DURACAO ORDENADA criada" << endl;
+    filmesOrdenadosDuracao.ordenar("duracao"); // ordena filmes por duração
+    cout << "Filme lista DURACAO ORDENADA criada" << endl;
 
     //Cria lista filmes ordenada para buscar por ano
     ListaOrdenadaFilmes filmesOrdenadosAno = (filmes.size());
     for(unsigned int i = 0; i < filmes.size(); i++){
         filmesOrdenadosAno.inserir(&filmes.at(i));
     }
-    filmesOrdenadosAno.ordenar("ano");
-    cout << "DEBUG 5: Filme lista ANO ORDENADA criada" << endl;
+    filmesOrdenadosAno.ordenar("ano"); // ordena filmes por ano
+    cout << "Filme lista ANO ORDENADA criada" << endl;
 
     //Cria lista de Cinemas ornadada para busca por preco
     ListaOrdenadaCinemas cinemasOdenadosPorPreco(cinemas.size());
     for(unsigned int i=0; i<cinemas.size(); i++){
         cinemasOdenadosPorPreco.inserir(&cinemas.at(i));
     }
-    cinemasOdenadosPorPreco.ordenar("preco");
-    cout << "DEBUG 6: Cinema lista PRECO ORDENADA criada" << endl;
+    cinemasOdenadosPorPreco.ordenar("preco"); // ordena cinemas por preco
+    cout << "Cinema lista PRECO ORDENADA criada" << endl;
 
     //Cria lista de cinemas ordenada para busca por distancia
     const int SEDE_X = 551867;
     const int SEDE_Y = 416560;
     vector<IndiceDistancia> listaBuscaDistancia;
     listaBuscaDistancia.reserve(cinemas.size());
-    for(unsigned int i = 0; i < cinemas.size(); i++) {
+    for(unsigned int i = 0; i < cinemas.size(); i++) { // preenche o vetor listabuscadistancia
         IndiceDistancia novo_indice;
         
         // Calcula a distância usando a fórmula Euclidiana
@@ -104,14 +104,14 @@ int main() {
         
         listaBuscaDistancia.push_back(novo_indice);
     }
-    mergeSortDistancia(listaBuscaDistancia, 0, listaBuscaDistancia.size() - 1);
+    mergeSortDistancia(listaBuscaDistancia, 0, listaBuscaDistancia.size() - 1);//ordena lista cinemas busca distancia
 
-    cout << "DEBUG 7: Cinema Lista DISTANCIA ORDENADA criada" << endl;
+    cout << "Cinema Lista DISTANCIA ORDENADA criada" << endl;
 
     auto fim = chrono::high_resolution_clock::now();
     chrono::duration<double> tempoEmS = fim - inicio;
 
-    cout << "Tempo em segundos: " << tempoEmS.count() << endl;
+    cout << "Tempo de carregamento das listas auxiliares" << tempoEmS.count() << endl;
     
   // =========================================================================
     // INÍCIO DA INTERFACE DO USUÁRIO (MENU PRINCIPAL)
@@ -136,12 +136,12 @@ int main() {
 
         switch (opcao) {
             case 1: {
-                cout << "\n--- BUSCA DE FILMES APRIMORADA ---" << endl;
+                cout << "\n--- BUSCA DE FILMES ---" << endl;
                 cout << "(Pressione ENTER para deixar em branco e pular o filtro)" << endl;
-                cout << "(Para múltiplos valores, separe por vírgula: movie,short,tvSeries)" << endl;
+                cout << "(Para multiplos valores, separe por virgula: movie,short,tvSeries)" << endl;
 
                 // Variáveis para receber os textos do terminal
-                string tipos_str, generos_str, dur_min_str, dur_max_str, ano_min_str, ano_max_str;
+                string tipos_str, generos_str, dur_min_str, dur_max_str, ano_min_str, ano_max_str; // variaveis para chamar as buscas
 
                 cout << "Tipos (ex: movie,short,tvSeries): ";
                 getline(cin, tipos_str);
@@ -169,7 +169,7 @@ int main() {
                 // Este container vai guardar todas as sublistas que precisaremos cruzar
                 vector<vector<Filme*>> listas_para_cruzar;
 
-                // 1. Filtro de Tipos (Usa Tabela Hash) - AGORA SUPORTA MÚLTIPLOS TIPOS
+                // 1. Filtro de Tipos (Usa Tabela Hash)
                 if (!tipos_str.empty()) {
                     vector<string> tipos = dividirString(tipos_str, ',');
                     vector<Filme*> v_tipos = buscarPorMultiplosTipos(listaFilmesTipo, tipos);
@@ -178,7 +178,7 @@ int main() {
                     }
                 }
 
-                // 2. Filtro de Generos (Usa Tabela Hash) - AGORA SUPORTA MÚLTIPLOS GÊNEROS
+                // 2. Filtro de Generos (Usa Tabela Hash)
                 if (!generos_str.empty()) {
                     vector<string> generos = dividirString(generos_str, ',');
                     vector<Filme*> v_generos = buscarPorMultiplosGeneros(listaFIlmesGenero, generos);
@@ -210,10 +210,7 @@ int main() {
                 // CRUZAMENTO DE DADOS (INTERSEÇÃO FINAL)
                 // -------------------------------------------------------------
                 if (listas_para_cruzar.empty()) {
-                    cout << "Nenhum filtro foi aplicado. Mostrando os 10 primeiros do catalogo geral:" << endl;
-                    for (int i = 0; i < 10 && i < filmes.size(); i++) {
-                        cout << "- [" << filmes[i].getId() << "] " << filmes[i].getTituloPrimario() << endl;
-                    }
+                    cout << "Nenhum filtro foi aplicado." << endl;
                 } else {
                     // Mostra os filtros aplicados
                     cout << "Filtros aplicados:" << endl;
@@ -277,7 +274,7 @@ int main() {
                         cout << ")" << endl;
                     }
                     if (resultado_final.size() > 20) {
-                        cout << "... e mais " << resultado_final.size() - 20 << " resultados ocultos (seja mais especifico nos filtros)." << endl;
+                        cout << "... e mais " << resultado_final.size() - 20 << " resultados ocultos." << endl;
                     }
                 }
 
@@ -291,7 +288,7 @@ int main() {
             case 2: {
                 cout << "\n--- BUSCA DE CINEMAS ---" << endl;
                 cout << "(Pressione ENTER para deixar em branco e pular o filtro)" << endl;
-                cout << "(Para múltiplos valores, separe por vírgula: movie,short,tvSeries)" << endl;
+                cout << "(Para multiplos valores, separe por virgula: movie,short,tvSeries)" << endl;
 
                 string dist_str, preco_str, tipos_str, generos_str, dur_min_str, dur_max_str, ano_min_str, ano_max_str, titulo_str;
 
@@ -405,10 +402,7 @@ int main() {
 
                 // --- CRUZAMENTO DOS DADOS (INTERSEÇÃO FINAL) ---
                 if (listas_para_cruzar.empty()) {
-                    cout << "Nenhum filtro foi aplicado. Mostrando alguns cinemas do catalogo:" << endl;
-                    for (int i = 0; i < 10 && i < cinemas.size(); i++) {
-                        cout << "- " << cinemas[i].getNome() << " (R$ " << cinemas[i].getPrecoIngresso() << ")" << endl;
-                    }
+                    cout << "Nenhum filtro foi aplicado." << endl;
                 } else {
                     vector<Cinema*> resultado_final = listas_para_cruzar[0];
                     
