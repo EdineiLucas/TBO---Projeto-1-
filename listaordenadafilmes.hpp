@@ -18,6 +18,8 @@ class ListaOrdenadaFilmes{
 
     void inserir(Filme* filme);
     void ordenar(std::string criterio);
+
+    std::vector<Filme*> buscaPorFaixa(int min, int max, std::string criterio);
 };
 
 

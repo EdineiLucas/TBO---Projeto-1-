@@ -71,3 +71,26 @@
             k++;
         }
     }
+
+    std::vector<Filme*> ListaOrdenadaFilmes::buscaPorFaixa(int min, int max, std::string criterio){
+        std::vector<Filme*> resultados;
+
+        for (unsigned int i = 0; i<lista.size(); i++){
+            int valorAtual = 0;
+
+            if(criterio == "ano"){
+                valorAtual = lista[i]->getAnoInicio();
+            }else if (criterio == "duracao"){
+                valorAtual = lista[i]->getTempo();
+            }
+
+            if(valorAtual >= min && valorAtual <= max){
+                resultados.push_back(lista[i]);
+            }
+
+            if(valorAtual > max){
+                break;
+            }
+        }
+        return resultados;
+    }

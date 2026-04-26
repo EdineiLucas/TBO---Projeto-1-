@@ -10,7 +10,7 @@ indicetipo::indicetipo(int tamanho){
 
 unsigned int indicetipo::calculaHash(string tipoDoFIlme){
         
-    unsigned int hashcalculado;
+    unsigned int hashcalculado = 0;
     for(char c : tipoDoFIlme){
             hashcalculado += c;
     }

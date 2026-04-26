@@ -7,7 +7,7 @@
     }
 
     unsigned int indicegenero::calculaHash(string generoDoFIlme){
-        unsigned int hashcalculado;
+        unsigned int hashcalculado = 0;
         for(char c : generoDoFIlme){
             hashcalculado += c;
         }
