@@ -458,7 +458,6 @@ vector<Cinema*> intersecaoCinemas(const vector<Cinema*>& listaA, const vector<Ci
     return resultado;
 }
 
-// ====== VERSÃO OTIMIZADA COM UNORDERED_SET ======
 vector<Cinema*> intersecaoCinemas_Otimizada(const vector<Cinema*>& listaA, const vector<Cinema*>& listaB) {
     vector<Cinema*> resultado;
     

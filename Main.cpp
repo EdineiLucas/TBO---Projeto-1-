@@ -24,6 +24,8 @@ int main() {
     vector<Cinema> cinemas; // Vetor dos cinemas (lista dos cinemas)
     vector<Filme> filmes;   // Vetor dos filmes (lista dos filmes)
 
+    cinemas.reserve(401);
+    filmes.reserve(600000);
     //***************ABERTURA DOS ARQUIVOS CRIAÇAO DE SS E AMAZENAMENTO NOS VETORES************ */
     if(!arquivoCinema.is_open()){  
         cout << "Erro! Arquivo não aberto" << endl;
