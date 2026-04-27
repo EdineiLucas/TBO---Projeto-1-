@@ -249,7 +249,7 @@ int main() {
 
                     // Aplica a operação 'E' cruzando com as próximas listas (se o usuário preencheu mais de uma)
                     for (size_t i = 1; i < listas_para_cruzar.size(); i++) {
-                        resultado_final = intersecaoFilmes(resultado_final, listas_para_cruzar[i]);
+                        resultado_final = intersecaoFilmes_Otimizada(resultado_final, listas_para_cruzar[i]);
                     }
 
                     // Impressão limpa dos resultados
@@ -407,7 +407,7 @@ int main() {
                     vector<Cinema*> resultado_final = listas_para_cruzar[0];
                     
                     for (size_t i = 1; i < listas_para_cruzar.size(); i++) {
-                        resultado_final = intersecaoCinemas(resultado_final, listas_para_cruzar[i]);
+                        resultado_final = intersecaoCinemas_Otimizada(resultado_final, listas_para_cruzar[i]);
                     }
 
                     // Impressão limpa dos resultados

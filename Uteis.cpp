@@ -1,5 +1,6 @@
 #include "Uteis.hpp"
 #include <algorithm>
+#include <unordered_set>
 
 using namespace std;
 
@@ -190,6 +191,27 @@ vector<Filme*> intersecaoFilmes(const vector<Filme*>& listaA, vector<Filme*>& li
             }
         }
     }
+    return resultado;
+}
+
+vector<Filme*> intersecaoFilmes_Otimizada(const vector<Filme*>& listaA, const vector<Filme*>& listaB) {
+    vector<Filme*> resultado;
+    
+    if (listaA.empty() || listaB.empty()) {
+        return resultado;
+    }
+
+    unordered_set<unsigned int> idsA;
+    for (Filme* f : listaA) {
+        idsA.insert(f->getId());
+    }
+
+    for (Filme* f : listaB) {
+        if (idsA.count(f->getId())) {
+            resultado.push_back(f);
+        }
+    }
+    
     return resultado;
 }
 
@@ -433,5 +455,30 @@ vector<Cinema*> intersecaoCinemas(const vector<Cinema*>& listaA, const vector<Ci
             }
         }
     }
+    return resultado;
+}
+
+// ====== VERSÃO OTIMIZADA COM UNORDERED_SET ======
+vector<Cinema*> intersecaoCinemas_Otimizada(const vector<Cinema*>& listaA, const vector<Cinema*>& listaB) {
+    vector<Cinema*> resultado;
+    
+    if (listaA.empty() || listaB.empty()) {
+        return resultado;
+    }
+
+    // Passo 1: Cria um hash set com os ponteiros da primeira lista
+    unordered_set<Cinema*> cinemasA;
+    for (Cinema* c : listaA) {
+        cinemasA.insert(c);
+    }
+
+    // Passo 2: Percorre a segunda lista e verifica se cada cinema existe no set
+    for (Cinema* c : listaB) {
+        // count() retorna 1 se encontrado, 0 se não encontrado
+        if (cinemasA.count(c)) {
+            resultado.push_back(c);
+        }
+    }
+    
     return resultado;
 }

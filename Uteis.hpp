@@ -23,6 +23,7 @@ void mergeSortDistancia(vector<IndiceDistancia>& arr, int esquerda, int direita)
 int converterInt(const string &text);
 
 vector<Filme*> intersecaoFilmes(const vector<Filme*> &listaA, vector<Filme*> &listaB);
+vector<Filme*> intersecaoFilmes_Otimizada(const vector<Filme*>& listaA, const vector<Filme*>& listaB);
 
 vector<Filme*> uniaoFilme(const vector<Filme*> &listaA, vector<Filme*> &listaB);
 
@@ -30,6 +31,7 @@ vector<Filme*> uniaoFilme(const vector<Filme*> &listaA, vector<Filme*> &listaB);
 Filme* buscarFilmePorId(std::vector<Filme>& filmes, unsigned int id_procurado);
 
 vector<Cinema*> intersecaoCinemas(const vector<Cinema*>& listaA, const vector<Cinema*>& listaB);
+vector<Cinema*> intersecaoCinemas_Otimizada(const vector<Cinema*>& listaA, const vector<Cinema*>& listaB);
 
 // Funções auxiliares para busca aprimorada
 vector<string> dividirString(const string& str, char delimitador);
