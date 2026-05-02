@@ -18,9 +18,11 @@ class indicetipo{
 
     indicetipo();
     indicetipo(int tamanho);
-    unsigned int calculaHash(string tipoDoFilme);
+    unsigned int calculaHash(string tipoDoFilme) const;
     bool inserir(Filme* filme);
-    list<Filme*> busca(unsigned int hash);
+    list<Filme*> busca(unsigned int hash) const;
+    
+    const vector<list<Filme*>>& getListaTipo() const;
 
 };
 

@@ -11,9 +11,10 @@
     void ListaOrdenadaFilmes::inserir(Filme* filme){
         lista.push_back(filme);
     }
+    
     void ListaOrdenadaFilmes::ordenar(std::string criterio){
         if(lista.size()>1){
-            mergeSort(0, lista.size(), criterio);
+            mergeSort(0, lista.size() - 1, criterio);
         }
     }
 
@@ -25,9 +26,10 @@
             merge(esquerda, meio, direita, criterio);
         }
     }
+
     void ListaOrdenadaFilmes::merge(int esquerda, int meio, int direita, std::string criterio){
         int n1 = meio - esquerda + 1;
-        int n2 = direita - meio - 1;
+        int n2 = direita - meio;
 
         std::vector<Filme*> L(n1);
         std::vector<Filme*> R(n2);
@@ -36,7 +38,7 @@
             L[i] = lista[esquerda + i]; 
         }
         for (int j = 0; j < n2; j++){
-            R[j] = lista[meio+ 1 + j];
+            R[j] = lista[meio + 1 + j];
         }
 
         int i = 0, j = 0, k = esquerda;
@@ -75,22 +77,28 @@
     std::vector<Filme*> ListaOrdenadaFilmes::buscaPorFaixa(int min, int max, std::string criterio){
         std::vector<Filme*> resultados;
 
-        for (unsigned int i = 0; i<lista.size(); i++){
-            int valorAtual = 0;
-
+        // Usar busca binária para encontrar os limites da faixa
+        auto getValor = [criterio](Filme* f) -> int {
             if(criterio == "ano"){
-                valorAtual = lista[i]->getAnoInicio();
+                return f->getAnoInicio();
             }else if (criterio == "duracao"){
-                valorAtual = lista[i]->getTempo();
+                return f->getTempo();
             }
+            return 0;
+        };
 
-            if(valorAtual >= min && valorAtual <= max){
-                resultados.push_back(lista[i]);
-            }
+        // Encontrar o primeiro elemento >= min
+        auto it_min = std::lower_bound(lista.begin(), lista.end(), min,
+            [getValor](Filme* f, int val) { return getValor(f) < val; });
 
-            if(valorAtual > max){
-                break;
-            }
+        // Encontrar o primeiro elemento > max
+        auto it_max = std::upper_bound(it_min, lista.end(), max,
+            [getValor](int val, Filme* f) { return val < getValor(f); });
+
+        // Copiar os elementos da faixa para o resultado
+        for (auto it = it_min; it != it_max; ++it) {
+            resultados.push_back(*it);
         }
+
         return resultados;
     }

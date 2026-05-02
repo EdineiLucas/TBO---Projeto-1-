@@ -19,9 +19,11 @@ class indicegenero{
 
     indicegenero();
     indicegenero(int tamanho);
-    unsigned int calculaHash(string generoDoFilme);
+    unsigned int calculaHash(string generoDoFilme) const;
     bool inserir(Filme* filme);
-    list<Filme*> busca(unsigned int hash);
+    list<Filme*> busca(unsigned int hash) const;
+    
+    const vector<list<Filme*>>& getListaGenero() const;
 
 };
 

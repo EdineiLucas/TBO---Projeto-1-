@@ -6,7 +6,7 @@
         listaGenero.resize(tamanho);
     }
 
-    unsigned int indicegenero::calculaHash(string generoDoFIlme){
+    unsigned int indicegenero::calculaHash(string generoDoFIlme) const {
         unsigned int hashcalculado = 0;
         for(char c : generoDoFIlme){
             hashcalculado += c;
@@ -28,6 +28,10 @@
         return check;
     }
 
-    list<Filme*> indicegenero::busca(unsigned int hash){
+    list<Filme*> indicegenero::busca(unsigned int hash) const {
         return listaGenero.at(hash);
+    }
+
+    const vector<list<Filme*>>& indicegenero::getListaGenero() const {
+        return listaGenero;
     }

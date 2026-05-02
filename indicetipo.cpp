@@ -8,10 +8,10 @@ indicetipo::indicetipo(int tamanho){
     listatipo.resize(tamanho);
 }
 
-unsigned int indicetipo::calculaHash(string tipoDoFIlme){
+unsigned int indicetipo::calculaHash(string tipoDoFilme) const {
         
     unsigned int hashcalculado = 0;
-    for(char c : tipoDoFIlme){
+    for(char c : tipoDoFilme){
             hashcalculado += c;
     }
     return hashcalculado % listatipo.size();
@@ -28,6 +28,10 @@ bool indicetipo::inserir(Filme* filme){
     return false;
 }
 
-list<Filme*> indicetipo::busca(unsigned int hash){
+list<Filme*> indicetipo::busca(unsigned int hash) const {
     return listatipo.at(hash);
+}
+
+const vector<list<Filme*>>& indicetipo::getListaTipo() const {
+    return listatipo;
 }
