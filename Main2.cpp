@@ -151,6 +151,76 @@ int main() {
     cout << "\n========================================" << endl;
     cout << "      SISTEMA CARREGADO COM SUCESSO!" << endl;
     cout << "========================================\n" << endl;
+
+    // --- DEBUG 2: listaFIlmesGenero ---
+    cout << "\n\n[2] LISTA DE FILMES POR GENERO" << endl;
+    cout << "===============================" << endl;
+    {
+        const vector<list<Filme*>>& listaInterna = listaFIlmesGenero.getListaGenero();
+        int bucket_com_dados = 0;
+        int total_filmes_genero = 0;
+        set<string> generos_processados;
+        
+        for (size_t i = 0; i < listaInterna.size(); i++) {
+            if (!listaInterna[i].empty()) {
+                // Pega o gênero do primeiro filme deste bucket
+                string genero = listaInterna[i].front()->getGenero()[0];
+                
+                // Evita imprimir o mesmo gênero múltiplas vezes (pode estar em vários buckets por colisão)
+                if (generos_processados.find(genero) == generos_processados.end()) {
+                    generos_processados.insert(genero);
+                    bucket_com_dados++;
+                    
+                    // Conta quantos filmes têm este gênero
+                    int contador_genero = 0;
+                    for (size_t j = 0; j < listaInterna.size(); j++) {
+                        for (Filme* f : listaInterna[j]) {
+                            vector<string> generos_filme = f->getGenero();
+                            for (const string& g : generos_filme) {
+                                if (g == genero) {
+                                    contador_genero++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    cout << "\nGenero: " << genero << " (" << contador_genero << " filmes no total)" << endl;
+                    cout << "Primeiros 5 filmes:" << endl;
+                    
+                    int contador = 0;
+                    for (size_t j = 0; j < listaInterna.size(); j++) {
+                        for (Filme* filme : listaInterna[j]) {
+                            vector<string> generos_filme = filme->getGenero();
+                            bool tem_genero = false;
+                            for (const string& g : generos_filme) {
+                                if (g == genero) {
+                                    tem_genero = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (tem_genero) {
+                                if (contador >= 200) break;
+                                cout << "  [" << filme->getId() << "] " 
+                                     << filme->getTituloPrimario() 
+                                     << " | Generos: ";
+                                for (size_t k = 0; k < generos_filme.size(); k++) {
+                                    cout << generos_filme[k];
+                                    if (k < generos_filme.size() - 1) cout << ", ";
+                                }
+                                cout << endl;
+                                contador++;
+                            }
+                        }
+                        if (contador >= 5) break;
+                    }
+                    total_filmes_genero++;
+                }
+            }
+        }
+        cout << "\nResumo: " << bucket_com_dados << " generos unicos encontrados" << endl;
+    }
     
     // =========================================================================
     // INTERFACE INTERATIVA

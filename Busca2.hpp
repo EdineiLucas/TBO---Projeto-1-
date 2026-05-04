@@ -5,6 +5,9 @@
 #include <string>
 #include "Filme.hpp"
 #include "Cinema.hpp"
+#include <chrono>
+#include <algorithm>
+#include "Uteis.hpp"
 
 // Forward declarations
 class indicetipo;

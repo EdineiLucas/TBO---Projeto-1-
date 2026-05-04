@@ -85,8 +85,8 @@ public:
                                       const ListaOrdenadaFilmes& listaOrdenada);
     
     // Funções auxiliares para exibição
-    static void exibirFilmes(const vector<Filme*>& filmes, int limite = 20);
-    static void exibirCinemas(const vector<Cinema*>& cinemas, const vector<Filme*>& filmesOrdenadosPorId, int limite = 20);
+    static void exibirFilmes(const vector<Filme*>& filmes, int limite = 50);
+    static void exibirCinemas(const vector<Cinema*>& cinemas, const vector<Filme*>& filmesOrdenadosPorId, int limite = 50);
     static string lerLinha(const string& prompt);
     static int lerInteiro(const string& prompt);
     static double lerDouble(const string& prompt);

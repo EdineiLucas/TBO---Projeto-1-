@@ -5,6 +5,8 @@
 #include <list>
 #include <utility>
 
+using namespace std;
+
 namespace {
     // =====================================================================
     // FUNÇÕES AUXILIARES PARA MERGE SORT
@@ -105,6 +107,40 @@ namespace {
             mergeCinemasPorId(vetor, esquerda, meio, direita);
         }
     }
+
+    void mergeListaFilmes(list<Filme*> &resultado, list<Filme*> &esq, list<Filme*> dir){
+        resultado.clear();
+
+        while(!esq.empty() && !dir.empty()){
+            if(esq.front() < dir.front()){
+                resultado.splice(resultado.end(), esq, esq.begin());
+            }else{
+                resultado.splice(resultado.end(), dir, dir.begin());
+            }
+        }
+        if(!esq.empty()){
+            resultado.splice(resultado.end(),esq);
+        }
+        if(!dir.empty()){
+            resultado.splice(resultado.end(), dir);
+        }
+    }
+
+    void mergeShortListaPonteiroFilmes(list<Filme*> &lista){
+        if(lista.size() <= 1){
+            return;
+        }
+
+        list<Filme*> esq, dir;
+        auto meio = lista.begin();
+        advance(meio, lista.size() / 2);
+        esq.splice(esq.begin(), lista, lista.begin(), meio);
+        dir.splice(dir.begin(), lista);
+        mergeShortListaPonteiroFilmes(esq);
+        mergeShortListaPonteiroFilmes(dir);
+        mergeListaFilmes(lista,esq,dir);
+    }
+
 }
 
 std::vector<Filme*> ordenarFilmesPorId(const std::vector<Filme*>& filmes) {
@@ -384,54 +420,47 @@ namespace {
 // =========================================================================
 
 std::vector<Filme*> buscarFilmesPorTipos_Otimizado(const indicetipo& listaTipos, const std::vector<std::string>& tipos) {
-    std::vector<Filme*> resultado;
-
+    std::list<Filme*> filmestipo; 
     for (const std::string& tipo : tipos) {
         unsigned int hash_t = listaTipos.calculaHash(tipo);
-        std::list<Filme*> listaHash = listaTipos.busca(hash_t);
-
-        for (Filme* f : listaHash) {
-            if (f->getTipo() == tipo && !jaAdicionado(resultado, f->getId())) {
-                resultado.push_back(f);
-            }
-        }
+        list<Filme*> listaAux = listaTipos.busca(hash_t);
+        filmestipo.splice(filmestipo.end(),listaAux);
     }
-
+    vector<Filme*> resultado(make_move_iterator(filmestipo.begin()), make_move_iterator(filmestipo.end()));
     // Ordenar resultado por ID para garantir consistência
     if (resultado.size() > 1) {
         resultado = ordenarFilmesPorId(resultado);
     }
-
+    auto it = unique(resultado.begin(), resultado.end());
+    resultado.erase(it, resultado.end());
     return resultado;
 }
 
 std::vector<Filme*> buscarFilmesPorGeneros_Otimizado(const indicegenero& listaGeneros, const std::vector<std::string>& generos, bool operadorE) {
-    std::vector<Filme*> resultado;
-
+    vector<Filme*> resultado;
+    list<Filme*> listaAux;
+    vector<Filme*> resposta;
     if (generos.empty()) {
         return resultado;
     }
 
     if (!operadorE) {
         // Operador OU
-        for (const std::string& genero : generos) {
+        for (string genero : generos) {
             unsigned int hash_g = listaGeneros.calculaHash(genero);
-            std::list<Filme*> listaHash = listaGeneros.busca(hash_g);
-
-            for (Filme* f : listaHash) {
-                bool tem_genero = false;
-                for (const std::string& g_filme : f->getGenero()) {
-                    if (g_filme == genero) {
-                        tem_genero = true;
-                        break;
-                    }
-                }
-
-                if (tem_genero && !jaAdicionado(resultado, f->getId())) {
-                    resultado.push_back(f);
-                }
+            listaAux = listaGeneros.busca(hash_g);
+            vector<Filme*> res(listaAux.begin(), listaAux.end());
+            if(genero == generos[0]){
+                resposta = res;
+                res.clear();
+            }else{
+                resposta = uniaoFilmesOrdenada(resposta, res);
+                res.clear();
             }
         }
+
+        return resposta;
+
     } else {
         // Operador E (intersecção)
         std::vector<std::vector<Filme*>> listas;
@@ -616,41 +645,61 @@ std::vector<Filme*> buscarFilmesPorAno_Otimizado(const std::vector<Filme*>& film
     return std::vector<Filme*>(filmesOrdenadosAno.begin() + inicio, filmesOrdenadosAno.begin() + fim);
 }
 
-std::vector<Filme*> buscarFilmesCombinados_Otimizado(const indicetipo& listaTipos, const indicegenero& listaGeneros,
-    const std::vector<Filme*>& filmesOrdenadosDuracao, const std::vector<Filme*>& filmesOrdenadosAno,
+std::vector<Filme*> buscarFilmesCombinados_Otimizado(const indicetipo& listaTipos, const indicegenero& listaGeneros, const std::vector<Filme*>& filmesOrdenadosDuracao, const std::vector<Filme*>& filmesOrdenadosAno,
     const ParametrosBuscaFilmes& parametros) {
-    std::vector<std::vector<Filme*>> listas;
-
+    auto inicio = chrono::high_resolution_clock::now();
+    vector<Filme*> listas, listaAux, listaAux2;
+    bool isPrimeiroFiltro = false;
     if (!parametros.tipos.valores.empty()) {
-        listas.push_back(buscarFilmesPorTipos_Otimizado(listaTipos, parametros.tipos.valores));
+        if(!isPrimeiroFiltro){
+            listas = buscarFilmesPorTipos_Otimizado(listaTipos, parametros.tipos.valores);
+            isPrimeiroFiltro = true;
+        }else{
+            listaAux = buscarFilmesPorTipos_Otimizado(listaTipos, parametros.tipos.valores);
+            listas = intersecaoFilmesOrdenada(listas, listaAux);
+            listaAux.clear();
+        }
     }
     if (!parametros.generos.valores.empty()) {
-        listas.push_back(buscarFilmesPorGeneros_Otimizado(listaGeneros, parametros.generos.valores, parametros.generos.operador == FiltroLogico::E));
+        if(!isPrimeiroFiltro){
+            listas = buscarFilmesPorGeneros_Otimizado(listaGeneros, parametros.generos.valores, parametros.generos.operador == FiltroLogico::E);
+            isPrimeiroFiltro = true;
+        }else{
+            listaAux = buscarFilmesPorGeneros_Otimizado(listaGeneros, parametros.generos.valores, parametros.generos.operador == FiltroLogico::E);
+            listas = intersecaoFilmesOrdenada(listas, listaAux);
+            listaAux.clear();
+        }
     }
     if (parametros.duracao.minimo != 0 || parametros.duracao.maximo != 0) {
         int max_val = parametros.duracao.maximo > 0 ? parametros.duracao.maximo : 9999;
-        listas.push_back(buscarFilmesPorDuracao_Otimizado(filmesOrdenadosDuracao, parametros.duracao.minimo, max_val));
+        if(!isPrimeiroFiltro){
+            listas = buscarFilmesPorDuracao_Otimizado(filmesOrdenadosDuracao, parametros.duracao.minimo, max_val);
+            isPrimeiroFiltro = true;
+        }else{
+            listaAux = buscarFilmesPorDuracao_Otimizado(filmesOrdenadosDuracao, parametros.duracao.minimo, max_val);
+            listas = intersecaoFilmesOrdenada(listas, listaAux);
+            listaAux.clear();
+        }
     }
     if (parametros.ano.minimo != 0 || parametros.ano.maximo != 0) {
         int max_val = parametros.ano.maximo > 0 ? parametros.ano.maximo : 2026;
-        listas.push_back(buscarFilmesPorAno_Otimizado(filmesOrdenadosAno, parametros.ano.minimo, max_val));
+        if(!isPrimeiroFiltro){
+            listas = buscarFilmesPorAno_Otimizado(filmesOrdenadosAno, parametros.ano.minimo, max_val);
+            isPrimeiroFiltro = true;
+        }else{
+            listaAux = buscarFilmesPorAno_Otimizado(filmesOrdenadosAno, parametros.ano.minimo, max_val);
+            listas = intersecaoFilmesOrdenada(listas, listaAux);
+            listaAux.clear();
+        }
     }
 
     if (listas.empty()) {
         return {};
     }
-
-    ordenarListasPorTamanho(listas);
-
-    std::vector<Filme*> resultado = listas[0];
-    for (size_t i = 1; i < listas.size(); ++i) {
-        resultado = intersecaoFilmesOrdenada(resultado, listas[i]);
-        if (resultado.empty()) {
-            break;
-        }
-    }
-
-    return resultado;
+    auto fim = chrono::high_resolution_clock::now();
+    chrono::duration<double> tempoEmS = fim - inicio;
+    cout << "\nTempo total de Busca: " << tempoEmS.count() << " segundos" << endl;
+    return listas;
 }
 
 //Busca Por Cinemas
