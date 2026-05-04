@@ -6,7 +6,6 @@
 #include <sstream>
 #include "Filme.hpp"
 #include "Cinema.hpp"
-#include "Busca.hpp"
 
 using namespace std;
 

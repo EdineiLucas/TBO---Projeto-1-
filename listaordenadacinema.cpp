@@ -23,6 +23,7 @@ void ListaOrdenadaCinemas::mergeSort(int esquerda, int direita, std::string crit
         merge(esquerda, meio, direita, criterio);
     }
 }
+
 void ListaOrdenadaCinemas::merge(int esquerda, int meio, int direita, std::string criterio){
     int n1 = meio - esquerda + 1;
     int n2 = direita - meio - 1;

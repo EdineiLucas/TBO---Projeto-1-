@@ -10,6 +10,7 @@ using namespace std;
 // FUNÇÕES AUXILIARES
 // ============================================================================
 
+//Leitura da linha para multiplos filtros
 string Menu::lerLinha(const string& prompt) {
     string entrada;
     cout << prompt;
@@ -17,6 +18,7 @@ string Menu::lerLinha(const string& prompt) {
     return entrada;
 }
 
+//Utilizado para escolha de opções - retorna o valor do input
 int Menu::lerInteiro(const string& prompt) {
     int valor;
     while (true) {
@@ -31,6 +33,7 @@ int Menu::lerInteiro(const string& prompt) {
     }
 }
 
+//Utilizado para ler entrada double da busca por distancia
 double Menu::lerDouble(const string& prompt) {
     double valor;
     while (true) {
@@ -45,16 +48,19 @@ double Menu::lerDouble(const string& prompt) {
     }
 }
 
+//Utilizado para busca de tipo(s) e genero(s) / lê a linha de tipos ou generos e separa os tipo em um vetor de strings (cada posição um tipo)
 vector<string> Menu::lerMultiplasOpcoes(const string& prompt) {
     string linha = lerLinha(prompt);
     vector<string> opcoes;
     string opcao;
     
+    //Função lambda de auxilio para limpar espaços em braço do começo e do final
     auto trim = [](string& s) {
         while (!s.empty() && isspace((unsigned char)s.front())) s.erase(s.begin());
         while (!s.empty() && isspace((unsigned char)s.back())) s.pop_back();
     };
 
+    //percorre a linha e separa os tipos no vetor opcoes
     for (char c : linha) {
         if (c == ',' || c == ';') {
             trim(opcao);
@@ -74,6 +80,7 @@ vector<string> Menu::lerMultiplasOpcoes(const string& prompt) {
     return opcoes;
 }
 
+//Utilizado para selecionar uma opção, navegação pelos paineis de filtros
 int Menu::lerOpcao(int minimo, int maximo) {
     while (true) {
         int opcao = lerInteiro("Escolha uma opcao: ");
@@ -84,6 +91,7 @@ int Menu::lerOpcao(int minimo, int maximo) {
     }
 }
 
+//Imprime os filmes da busca, utilizada nas funções de busca simples e na função de busca combinada
 void Menu::exibirFilmes(const vector<Filme*>& filmes, int limite) {
     if (filmes.empty()) {
         cout << "\n>>> Nenhum filme encontrado.\n" << endl;
@@ -114,7 +122,8 @@ void Menu::exibirFilmes(const vector<Filme*>& filmes, int limite) {
     cout << endl;
 }
 
-void Menu::exibirCinemas(const vector<Cinema*>& cinemas, const vector<Filme>& filmes, int limite) {
+//Imprime os cinemas da busca, segue os mesmos conceitos de exibir filmes, tem um loop final para exibir os filmes em cartaz daquele cinema
+void Menu::exibirCinemas(const vector<Cinema*>& cinemas, const vector<Filme*>& filmesOrdenadosPorId, int limite) {
     if (cinemas.empty()) {
         cout << "\n>>> Nenhum cinema encontrado.\n" << endl;
         return;
@@ -139,7 +148,7 @@ void Menu::exibirCinemas(const vector<Cinema*>& cinemas, const vector<Filme>& fi
         } else {
             cout << "    Filmes em cartaz:\n";
             for (unsigned int id_filme : filmesEmCartaz) {
-                Filme* f = buscarFilmePorId(const_cast<vector<Filme>&>(filmes), id_filme);
+                Filme* f = buscarFilmePorIdOrdenado(filmesOrdenadosPorId, id_filme);
                 if (f != nullptr) {
                     cout << "      [" << f->getId() << "] " << f->getTituloPrimario() << "\n";
                 } else {
@@ -155,6 +164,7 @@ void Menu::exibirCinemas(const vector<Cinema*>& cinemas, const vector<Filme>& fi
 // MENU PRINCIPAL
 // ============================================================================
 
+//Texto do menu inicial
 void Menu::exibirMenuPrincipal() {
     cout << "\n";
     cout << "-----   SISTEMA DE BUSCA DE FILMES E CINEMAS    -------\n";
@@ -167,20 +177,19 @@ void Menu::exibirMenuPrincipal() {
 // MENUS DE BUSCA DE FILMES
 // ============================================================================
 
-void Menu::buscaFilmePorTipo(const vector<Filme>& filmes,
-                               const indicetipo& indicetipo) {
+//utiliza das funções de busca para buscar por tipo
+void Menu::buscaFilmePorTipo(const vector<Filme>& filmes, const indicetipo& indicetipo) {
     cout << "\n=== BUSCA DE FILMES POR TIPO ===\n";
     cout << "Buscar por 1 ou mais tipos?\n";
     cout << "Tipos disponiveis: Movie, TV Series, Short\n";
-    vector<string> tipos = lerMultiplasOpcoes(
-        "Digite os tipos (separados por virgula): ");
+    vector<string> tipos = lerMultiplasOpcoes("Digite os tipos (separados por virgula): ");
     
-    vector<Filme*> resultado = buscarFilmesPorTipos(indicetipo, tipos);
+    vector<Filme*> resultado = buscarFilmesPorTipos_Otimizado(indicetipo, tipos);
     exibirFilmes(resultado);
 }
 
-void Menu::buscaFilmePorGenero(const vector<Filme>& filmes,
-                                const indicegenero& indicegenero) {
+//Chamada da busca por gênero
+void Menu::buscaFilmePorGenero(const vector<Filme>& filmes, const indicegenero& indicegenero) {
     cout << "\n=== BUSCA DE FILMES POR GENERO ===\n";
     int op;
     cout << "1. Filmes que contenham TODOS os generos (E)\n";
@@ -190,37 +199,35 @@ void Menu::buscaFilmePorGenero(const vector<Filme>& filmes,
     vector<string> generos = lerMultiplasOpcoes(
         "Digite os generos (separados por virgula): ");
     
-    FiltroLogico operador = (op == 1) ? FiltroLogico::E : FiltroLogico::OU;
-    vector<Filme*> resultado = buscarFilmesPorGeneros(indicegenero, generos, operador);
+    bool operadorE = (op == 1);
+    vector<Filme*> resultado = buscarFilmesPorGeneros_Otimizado(indicegenero, generos, operadorE);
     exibirFilmes(resultado);
 }
 
-void Menu::buscaFilmePorDuracao(const vector<Filme>& filmes,
-                                 const ListaOrdenadaFilmes& listaOrdenadaDuracao) {
+//Chamada da busca por duração
+void Menu::buscaFilmePorDuracao(const vector<Filme>& filmes, const ListaOrdenadaFilmes& listaOrdenadaDuracao) {
     cout << "\n=== BUSCA DE FILMES POR DURACAO ===\n";
     int durMin = lerInteiro("Duracao minima (minutos): ");
     int durMax = lerInteiro("Duracao maxima (minutos): ");
     
     FiltroFaixa faixa{durMin, durMax};
-    vector<Filme*> resultado = buscarFilmesPorDuracao(listaOrdenadaDuracao.lista, faixa.minimo, faixa.maximo);
+    vector<Filme*> resultado = buscarFilmesPorDuracao_Otimizado(listaOrdenadaDuracao.lista, faixa.minimo, faixa.maximo);
     exibirFilmes(resultado);
 }
 
-void Menu::buscaFilmePorAno(const vector<Filme>& filmes,
-                             const ListaOrdenadaFilmes& listaOrdenadaAno) {
+//Chamada da busca por ano
+void Menu::buscaFilmePorAno(const vector<Filme>& filmes, const ListaOrdenadaFilmes& listaOrdenadaAno) {
     cout << "\n=== BUSCA DE FILMES POR ANO ===\n";
     int anoMin = lerInteiro("Ano minimo: ");
     int anoMax = lerInteiro("Ano maximo: ");
     
     FiltroFaixa faixa{anoMin, anoMax};
-    vector<Filme*> resultado = buscarFilmesPorAno(listaOrdenadaAno.lista, faixa.minimo, faixa.maximo);
+    vector<Filme*> resultado = buscarFilmesPorAno_Otimizado(listaOrdenadaAno.lista, faixa.minimo, faixa.maximo);
     exibirFilmes(resultado);
 }
 
-void Menu::buscaFilmeCombinada(const vector<Filme>& filmes,
-                                const vector<Cinema>& cinemas,
-                                const indicetipo& indicetipo,
-                                const indicegenero& indicegenero,
+//Combinação dos filtros na busca por filmes, utiliza a estrutura de busca para armazenar os dados a serem buscados e direciona a lista certa para cada tipo de busca
+void Menu::buscaFilmeCombinada(const vector<Filme>& filmes, const vector<Cinema>& cinemas, const indicetipo& indicetipo, const indicegenero& indicegenero,
                                 const ListaOrdenadaFilmes& listaOrdenadaDuracao,
                                 const ListaOrdenadaFilmes& listaOrdenadaAno) {
     cout << "\n=== BUSCA COMBINADA DE FILMES ===\n";
@@ -230,8 +237,7 @@ void Menu::buscaFilmeCombinada(const vector<Filme>& filmes,
     // Tipo
     int usarTipo = lerInteiro("\nAdicionar filtro de TIPO? (1=Sim, 0=Nao): ");
     if (usarTipo == 1) {
-        string tipo = lerLinha("Digite o tipo (Movie/TV Series/Short): ");
-        params.tipos.valores.push_back(tipo);
+        params.tipos.valores = lerMultiplasOpcoes("Digite os tipos (separados por virgula): ");
     }
     
     // Gêneros
@@ -258,15 +264,13 @@ void Menu::buscaFilmeCombinada(const vector<Filme>& filmes,
         params.ano.maximo = lerInteiro("Ano maximo: ");
     }
     
-    vector<Filme*> resultado = buscarFilmesCombinados(indicetipo, indicegenero,
+    vector<Filme*> resultado = buscarFilmesCombinados_Otimizado(indicetipo, indicegenero,
                                                        listaOrdenadaDuracao.lista, listaOrdenadaAno.lista, params);
     exibirFilmes(resultado);
 }
 
-void Menu::menuBuscaFilmes(const vector<Filme>& filmes,
-                            const vector<Cinema>& cinemas,
-                            const indicetipo& indicetipo,
-                            const indicegenero& indicegenero,
+//Menu de busca por filmes chama as funções de buscas individuais ou faz busca combinada
+void Menu::menuBuscaFilmes(const vector<Filme>& filmes, const vector<Cinema>& cinemas, const indicetipo& indicetipo, const indicegenero& indicegenero,
                             const ListaOrdenadaFilmes& listaOrdenadaDuracao,
                             const ListaOrdenadaFilmes& listaOrdenadaAno) {
     while (true) {
@@ -306,81 +310,61 @@ void Menu::menuBuscaFilmes(const vector<Filme>& filmes,
 // MENUS DE BUSCA DE CINEMAS
 // ============================================================================
 
-void Menu::buscaCinemaPorDistancia(const vector<Filme>& filmes,
-                                    const vector<Cinema>& cinemas,
-                                    const vector<IndiceDistancia>& listaBuscaDistancia) {
+//busca cinemas com distância menor ou igual a distância de input - Interface de busca
+void Menu::buscaCinemaPorDistancia(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const vector<IndiceDistancia>& listaBuscaDistancia) {
     cout << "\n=== BUSCA DE CINEMAS POR DISTANCIA ===\n";
     double distMax = lerDouble("Distancia maxima (metros): ");
     
-    vector<Cinema*> resultado = buscarCinemasPorDistancia(listaBuscaDistancia, distMax);
-    exibirCinemas(resultado, filmes);
+    vector<Cinema*> resultado = buscarCinemasPorDistancia_Otimizado(listaBuscaDistancia, distMax);
+    exibirCinemas(resultado, filmesOrdenadosPorId);
 }
 
-void Menu::buscaCinemaPorTipo(const vector<Filme>& filmes,
-                               const vector<Cinema>& cinemas,
-                               const indicetipo& indicetipo) {
+//Interface de buscar cinema por tipo
+void Menu::buscaCinemaPorTipo(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const indicetipo& indicetipo) {
     cout << "\n=== BUSCA DE CINEMAS POR TIPO DE FILME ===\n";
     string tipo = lerLinha("Digite o tipo (Movie/TV Series/Short): ");
     
     vector<string> tipos = {tipo};
-    vector<Cinema*> resultado = buscarCinemasPorMultiplosTipos(cinemas, filmes, tipos);
-    exibirCinemas(resultado, filmes);
+    vector<Cinema*> resultado = buscarCinemasPorMultiplosTipos_Otimizado(cinemas, filmesOrdenadosPorId, tipos);
+    exibirCinemas(resultado, filmesOrdenadosPorId);
 }
 
-void Menu::buscaCinemaPorGenero(const vector<Filme>& filmes,
-                                 const vector<Cinema>& cinemas,
-                                 const indicegenero& indicegenero) {
+void Menu::buscaCinemaPorGenero(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const indicegenero& indicegenero, bool operadorE) {
     cout << "\n=== BUSCA DE CINEMAS POR GENERO ===\n";
-    int op;
-    cout << "1. Filmes que contenham TODOS os generos (E)\n";
-    cout << "2. Filmes que contenham ALGUM genero (OU)\n";
-    op = lerOpcao(1, 2);
-    
     vector<string> generos = lerMultiplasOpcoes(
         "Digite os generos (separados por virgula): ");
     
-    FiltroLogico operador = (op == 1) ? FiltroLogico::E : FiltroLogico::OU;
-    vector<Cinema*> resultado = buscarCinemasPorMultiplosGeneros(cinemas, filmes, generos);
-    exibirCinemas(resultado, filmes);
+    vector<Cinema*> resultado = buscarCinemasPorMultiplosGeneros_Otimizado(cinemas, filmesOrdenadosPorId, generos, operadorE);
+    exibirCinemas(resultado, filmesOrdenadosPorId);
 }
 
-void Menu::buscaCinemaPorDuracao(const vector<Filme>& filmes,
-                                  const vector<Cinema>& cinemas,
-                                  const ListaOrdenadaFilmes& listaOrdenada) {
+void Menu::buscaCinemaPorDuracao(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const ListaOrdenadaFilmes& listaOrdenada) {
     cout << "\n=== BUSCA DE CINEMAS POR DURACAO DO FILME ===\n";
     int durMin = lerInteiro("Duração minima (minutos): ");
     int durMax = lerInteiro("Duração maxima (minutos): ");
     
-    FiltroFaixa faixa{durMin, durMax};
-    vector<Cinema*> resultado = buscarCinemasPorDuracao(cinemas, filmes, durMin, durMax);
-    exibirCinemas(resultado, filmes);
+    vector<Cinema*> resultado = buscarCinemasPorDuracao_Otimizado(cinemas, filmesOrdenadosPorId, durMin, durMax);
+    exibirCinemas(resultado, filmesOrdenadosPorId);
 }
 
-void Menu::buscaCinemaPorAno(const vector<Filme>& filmes,
-                              const vector<Cinema>& cinemas,
-                              const ListaOrdenadaFilmes& listaOrdenada) {
+void Menu::buscaCinemaPorAno(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const ListaOrdenadaFilmes& listaOrdenada) {
     cout << "\n=== BUSCA DE CINEMAS POR ANO DO FILME ===\n";
     int anoMin = lerInteiro("Ano minimo: ");
     int anoMax = lerInteiro("Ano maximo: ");
     
-    FiltroFaixa faixa{anoMin, anoMax};
-    vector<Cinema*> resultado = buscarCinemasPorAno(cinemas, filmes, anoMin, anoMax);
-    exibirCinemas(resultado, filmes);
+    vector<Cinema*> resultado = buscarCinemasPorAno_Otimizado(cinemas, filmesOrdenadosPorId, anoMin, anoMax);
+    exibirCinemas(resultado, filmesOrdenadosPorId);
 }
 
-void Menu::buscaCinemaPorTitulo(const vector<Filme>& filmes,
-                                 const vector<Cinema>& cinemas) {
+void Menu::buscaCinemaPorTitulo(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas) {
     cout << "\n=== BUSCA DE CINEMAS POR TITULO DO FILME ===\n";
     string titulo = lerLinha("Digite o titulo do filme: ");
     
-    vector<Cinema*> resultado = buscarCinemasPorTitulo(cinemas, filmes, titulo);
-    exibirCinemas(resultado, filmes);
+    vector<Cinema*> resultado = buscarCinemasPorTitulo_Otimizado(cinemas, filmesOrdenadosPorId, titulo);
+    exibirCinemas(resultado, filmesOrdenadosPorId);
 }
 
-void Menu::buscaCinemaCombinada(const vector<Filme>& filmes,
-                                 const vector<Cinema>& cinemas,
-                                 const vector<IndiceDistancia>& listaBuscaDistancia,
-                                 const indicetipo& indicetipo,
+void Menu::buscaCinemaCombinada(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const vector<IndiceDistancia>& listaBuscaDistancia, const indicetipo& indicetipo,
                                  const indicegenero& indicegenero,
                                  const ListaOrdenadaFilmes& listaOrdenada) {
     cout << "\n=== BUSCA COMBINADA DE CINEMAS ===\n";
@@ -425,17 +409,12 @@ void Menu::buscaCinemaCombinada(const vector<Filme>& filmes,
         params.titulo = lerLinha("Digite o titulo: ");
     }
     
-    vector<Cinema*> resultado = buscarCinemasCombinados(cinemas, filmes,
-                                                         listaBuscaDistancia,
-                                                         indicetipo, indicegenero,
-                                                         params);
-    exibirCinemas(resultado, filmes);
+    vector<Cinema*> resultado = buscarCinemasCombinados_Otimizado(cinemas, filmesOrdenadosPorId, listaBuscaDistancia, indicetipo, indicegenero, params);
+    exibirCinemas(resultado, filmesOrdenadosPorId);
 }
 
-void Menu::menuBuscaCinemas(const vector<Filme>& filmes,
-                             const vector<Cinema>& cinemas,
-                             const vector<IndiceDistancia>& listaBuscaDistancia,
-                             const indicetipo& indicetipo,
+//Interface da busca por cinemas onde direciona para cara tipo de busca.
+void Menu::menuBuscaCinemas(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const vector<IndiceDistancia>& listaBuscaDistancia, const indicetipo& indicetipo,
                              const indicegenero& indicegenero,
                              const ListaOrdenadaFilmes& listaOrdenadaDuracao,
                              const ListaOrdenadaFilmes& listaOrdenadaAno) {
@@ -454,25 +433,29 @@ void Menu::menuBuscaCinemas(const vector<Filme>& filmes,
         
         switch (opcao) {
             case 1:
-                buscaCinemaPorDistancia(filmes, cinemas, listaBuscaDistancia);
+                buscaCinemaPorDistancia(filmesOrdenadosPorId, cinemas, listaBuscaDistancia);
                 break;
             case 2:
-                buscaCinemaPorTipo(filmes, cinemas, indicetipo);
+                buscaCinemaPorTipo(filmesOrdenadosPorId, cinemas, indicetipo);
                 break;
-            case 3:
-                buscaCinemaPorGenero(filmes, cinemas, indicegenero);
+            case 3: {
+                cout << "1. Filmes que contenham TODOS os generos (E)\n";
+                cout << "2. Filmes que contenham ALGUM genero (OU)\n";
+                int operacao = lerOpcao(1, 2);
+                buscaCinemaPorGenero(filmesOrdenadosPorId, cinemas, indicegenero, operacao == 1);
                 break;
+            }
             case 4:
-                buscaCinemaPorDuracao(filmes, cinemas, listaOrdenadaDuracao);
+                buscaCinemaPorDuracao(filmesOrdenadosPorId, cinemas, listaOrdenadaDuracao);
                 break;
             case 5:
-                buscaCinemaPorAno(filmes, cinemas, listaOrdenadaDuracao);
+                buscaCinemaPorAno(filmesOrdenadosPorId, cinemas, listaOrdenadaDuracao);
                 break;
             case 6:
-                buscaCinemaPorTitulo(filmes, cinemas);
+                buscaCinemaPorTitulo(filmesOrdenadosPorId, cinemas);
                 break;
             case 7:
-                buscaCinemaCombinada(filmes, cinemas, listaBuscaDistancia,
+                buscaCinemaCombinada(filmesOrdenadosPorId, cinemas, listaBuscaDistancia,
                                      indicetipo, indicegenero, listaOrdenadaDuracao);
                 break;
             case 0:

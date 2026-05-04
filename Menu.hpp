@@ -5,7 +5,7 @@
 #include <string>
 #include "Filme.hpp"
 #include "Cinema.hpp"
-#include "Busca.hpp"
+#include "Busca2.hpp"
 #include "Indicetipo.hpp"
 #include "Indicegenero.hpp"
 #include "listaordenadafilmes.hpp"
@@ -45,7 +45,7 @@ public:
                                      const ListaOrdenadaFilmes& listaOrdenadaAno);
     
     // Menus de busca de cinemas
-    static void menuBuscaCinemas(const vector<Filme>& filmes,
+    static void menuBuscaCinemas(const vector<Filme*>& filmesOrdenadosPorId,
                                   const vector<Cinema>& cinemas,
                                   const vector<IndiceDistancia>& listaBuscaDistancia,
                                   const indicetipo& indicetipo,
@@ -53,30 +53,31 @@ public:
                                   const ListaOrdenadaFilmes& listaOrdenadaDuracao,
                                   const ListaOrdenadaFilmes& listaOrdenadaAno);
     
-    static void buscaCinemaPorDistancia(const vector<Filme>& filmes,
+    static void buscaCinemaPorDistancia(const vector<Filme*>& filmesOrdenadosPorId,
                                          const vector<Cinema>& cinemas,
                                          const vector<IndiceDistancia>& listaBuscaDistancia);
     
-    static void buscaCinemaPorTipo(const vector<Filme>& filmes,
+    static void buscaCinemaPorTipo(const vector<Filme*>& filmesOrdenadosPorId,
                                     const vector<Cinema>& cinemas,
                                     const indicetipo& indicetipo);
     
-    static void buscaCinemaPorGenero(const vector<Filme>& filmes,
+    static void buscaCinemaPorGenero(const vector<Filme*>& filmesOrdenadosPorId,
                                       const vector<Cinema>& cinemas,
-                                      const indicegenero& indicegenero);
+                                      const indicegenero& indicegenero,
+                                      bool operadorE);
     
-    static void buscaCinemaPorDuracao(const vector<Filme>& filmes,
+    static void buscaCinemaPorDuracao(const vector<Filme*>& filmesOrdenadosPorId,
                                        const vector<Cinema>& cinemas,
                                        const ListaOrdenadaFilmes& listaOrdenada);
     
-    static void buscaCinemaPorAno(const vector<Filme>& filmes,
+    static void buscaCinemaPorAno(const vector<Filme*>& filmesOrdenadosPorId,
                                    const vector<Cinema>& cinemas,
                                    const ListaOrdenadaFilmes& listaOrdenada);
     
-    static void buscaCinemaPorTitulo(const vector<Filme>& filmes,
+    static void buscaCinemaPorTitulo(const vector<Filme*>& filmesOrdenadosPorId,
                                       const vector<Cinema>& cinemas);
     
-    static void buscaCinemaCombinada(const vector<Filme>& filmes,
+    static void buscaCinemaCombinada(const vector<Filme*>& filmesOrdenadosPorId,
                                       const vector<Cinema>& cinemas,
                                       const vector<IndiceDistancia>& listaBuscaDistancia,
                                       const indicetipo& indicetipo,
@@ -85,7 +86,7 @@ public:
     
     // Funções auxiliares para exibição
     static void exibirFilmes(const vector<Filme*>& filmes, int limite = 20);
-    static void exibirCinemas(const vector<Cinema*>& cinemas, const vector<Filme>& filmes, int limite = 20);
+    static void exibirCinemas(const vector<Cinema*>& cinemas, const vector<Filme*>& filmesOrdenadosPorId, int limite = 20);
     static string lerLinha(const string& prompt);
     static int lerInteiro(const string& prompt);
     static double lerDouble(const string& prompt);

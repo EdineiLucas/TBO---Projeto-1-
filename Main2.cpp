@@ -14,7 +14,6 @@
 #include "Indicetipo.hpp"
 #include "listaordenadacinema.hpp"
 #include "listaordenadafilmes.hpp"
-#include "Busca.hpp"
 #include "Menu.hpp"
 
 using namespace std;
@@ -65,14 +64,7 @@ int main() {
     cout << "- " << filmes.size() << " filmes carregados" << endl;
 
     // =========================================================================
-    // ETAPA 2: INICIALIZAÇÃO DO MAPA DE FILMES
-    // =========================================================================
-    cout << "\n=== ETAPA 2: Inicializando mapa de filmes ===" << endl;
-    inicializarMapaFilmes(filmes);
-    cout << "- HashMap de filmes pronto" << endl;
-
-    // =========================================================================
-    // ETAPA 3: INICIALIZAÇÃO DAS LISTAS AUXILIARES
+    // ETAPA 2: INICIALIZAÇÃO DAS LISTAS AUXILIARES
     // =========================================================================
     cout << "\n=== ETAPA 3: Inicializando listas auxiliares ===" << endl;
 
@@ -138,13 +130,20 @@ int main() {
     mergeSortDistancia(listaBuscaDistancia, 0, listaBuscaDistancia.size() - 1);
     cout << "- Lista de cinemas por distancia criada" << endl;
 
+    // 3.7 - Lista de Filmes Ordenada por ID
+    cout << "Criando lista de filmes ordenada por ID..." << endl;
+    vector<Filme*> filmesOrdenadosPorId;
+    filmesOrdenadosPorId.reserve(filmes.size());
+    for (unsigned int i = 0; i < filmes.size(); i++) {
+        filmesOrdenadosPorId.push_back(&filmes.at(i));
+    }
+    cout << "- Lista de filmes por ID criada" << endl;
+
     // =========================================================================
     // RESUMO DO CARREGAMENTO
     // =========================================================================
     auto fim = chrono::high_resolution_clock::now();
     chrono::duration<double> tempoEmS = fim - inicio;
-
-    cout << "\n=== RESUMO ===" << endl;
     cout << "Total de cinemas: " << cinemas.size() << endl;
     cout << "Total de filmes: " << filmes.size() << endl;
     cout << "Tempo total de carregamento: " << tempoEmS.count() << " segundos" << endl;
@@ -169,7 +168,7 @@ int main() {
                 Menu::menuBuscaFilmes(filmes, cinemas, listaFilmesTipo, listaFIlmesGenero, filmesOrdenadosDuracao, filmesOrdenadosAno);
                 break;
             case 2:
-                Menu::menuBuscaCinemas(filmes, cinemas, listaBuscaDistancia, 
+                Menu::menuBuscaCinemas(filmesOrdenadosPorId, cinemas, listaBuscaDistancia, 
                                        listaFilmesTipo, listaFIlmesGenero, filmesOrdenadosDuracao, filmesOrdenadosAno);
                 break;
             case 0:
