@@ -42,6 +42,7 @@ struct ParametrosBuscaFilmes {
 
 struct ParametrosBuscaCinemas {
     double distanciaMax = -1.0;
+    double preco = 1000;
     std::vector<std::string> tipos;
     std::vector<std::string> generos;
     FiltroFaixa duracao;
@@ -95,9 +96,10 @@ std::vector<Cinema*> buscarCinemasPorMultiplosGeneros_Otimizado(const std::vecto
 std::vector<Cinema*> buscarCinemasPorDuracao_Otimizado(const std::vector<Cinema>& cinemas, const std::vector<Filme*>& filmesOrdenadosPorId, int dur_min, int dur_max);
 std::vector<Cinema*> buscarCinemasPorAno_Otimizado(const std::vector<Cinema>& cinemas, const std::vector<Filme*>& filmesOrdenadosPorId, int ano_min, int ano_max);
 std::vector<Cinema*> buscarCinemasPorTitulo_Otimizado(const std::vector<Cinema>& cinemas, const std::vector<Filme*>& filmesOrdenadosPorId, const std::string& titulo);
+std::vector<Cinema*> buscarCinemasPorPreco(const std::vector<Cinema*> &cinemasOrdenadosPreco, double precoMax);
 std::vector<Cinema*> buscarCinemasCombinados_Otimizado(const std::vector<Cinema>& cinemas, const std::vector<Filme*>& filmesOrdenadosPorId,
     const std::vector<IndiceDistancia>& listaBuscaDistancia,
     const indicetipo& listaTipos, const indicegenero& listaGeneros,
-    const ParametrosBuscaCinemas& parametros);
+    const ParametrosBuscaCinemas& parametros, const std::vector<Cinema*>& cinemasOrdenadosPreco);
 
 #endif // BUSCA2_HPP

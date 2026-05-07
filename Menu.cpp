@@ -366,7 +366,7 @@ void Menu::buscaCinemaPorTitulo(const vector<Filme*>& filmesOrdenadosPorId, cons
 
 void Menu::buscaCinemaCombinada(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const vector<IndiceDistancia>& listaBuscaDistancia, const indicetipo& indicetipo,
                                  const indicegenero& indicegenero,
-                                 const ListaOrdenadaFilmes& listaOrdenada) {
+                                 const ListaOrdenadaFilmes& listaOrdenada, const ListaOrdenadaCinemas& cinemasOrdenadosPorPreco) {
     cout << "\n=== BUSCA COMBINADA DE CINEMAS ===\n";
     
     ParametrosBuscaCinemas params;
@@ -375,6 +375,11 @@ void Menu::buscaCinemaCombinada(const vector<Filme*>& filmesOrdenadosPorId, cons
     int usarDist = lerInteiro("\nAdicionar filtro de DISTANCIA? (1=Sim, 0=Nao): ");
     if (usarDist == 1) {
         params.distanciaMax = lerDouble("Distancia maxima (metros): ");
+    }
+
+    int usarPreco = lerInteiro("Adicionar filtro de Preco? (1=Sim, 0=Nao): ");
+    if(usarPreco == 1){
+        params.preco = lerDouble("Preco Maximo: ");
     }
     
     // Tipos de filme
@@ -409,7 +414,7 @@ void Menu::buscaCinemaCombinada(const vector<Filme*>& filmesOrdenadosPorId, cons
         params.titulo = lerLinha("Digite o titulo: ");
     }
     
-    vector<Cinema*> resultado = buscarCinemasCombinados_Otimizado(cinemas, filmesOrdenadosPorId, listaBuscaDistancia, indicetipo, indicegenero, params);
+    vector<Cinema*> resultado = buscarCinemasCombinados_Otimizado(cinemas, filmesOrdenadosPorId, listaBuscaDistancia, indicetipo, indicegenero, params, cinemasOrdenadosPorPreco.lista);
     exibirCinemas(resultado, filmesOrdenadosPorId);
 }
 
@@ -417,7 +422,8 @@ void Menu::buscaCinemaCombinada(const vector<Filme*>& filmesOrdenadosPorId, cons
 void Menu::menuBuscaCinemas(const vector<Filme*>& filmesOrdenadosPorId, const vector<Cinema>& cinemas, const vector<IndiceDistancia>& listaBuscaDistancia, const indicetipo& indicetipo,
                              const indicegenero& indicegenero,
                              const ListaOrdenadaFilmes& listaOrdenadaDuracao,
-                             const ListaOrdenadaFilmes& listaOrdenadaAno) {
+                             const ListaOrdenadaFilmes& listaOrdenadaAno,
+                             const ListaOrdenadaCinemas& cinemasOrdenadosPorPreco) {
     while (true) {
         cout << "\n---- BUSCA DE CINEMAS ----\n";
         cout << "1. Por Distancia                        \n";
@@ -456,7 +462,7 @@ void Menu::menuBuscaCinemas(const vector<Filme*>& filmesOrdenadosPorId, const ve
                 break;
             case 7:
                 buscaCinemaCombinada(filmesOrdenadosPorId, cinemas, listaBuscaDistancia,
-                                     indicetipo, indicegenero, listaOrdenadaDuracao);
+                                     indicetipo, indicegenero, listaOrdenadaDuracao, cinemasOrdenadosPorPreco);
                 break;
             case 0:
                 return;

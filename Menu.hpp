@@ -9,6 +9,7 @@
 #include "Indicetipo.hpp"
 #include "Indicegenero.hpp"
 #include "listaordenadafilmes.hpp"
+#include "listaordenadacinema.hpp"
 
 using namespace std;
 
@@ -51,7 +52,8 @@ public:
                                   const indicetipo& indicetipo,
                                   const indicegenero& indicegenero,
                                   const ListaOrdenadaFilmes& listaOrdenadaDuracao,
-                                  const ListaOrdenadaFilmes& listaOrdenadaAno);
+                                  const ListaOrdenadaFilmes& listaOrdenadaAno,
+                                  const ListaOrdenadaCinemas& cinemasOrdenadosPorPreco);
     
     static void buscaCinemaPorDistancia(const vector<Filme*>& filmesOrdenadosPorId,
                                          const vector<Cinema>& cinemas,
@@ -82,7 +84,8 @@ public:
                                       const vector<IndiceDistancia>& listaBuscaDistancia,
                                       const indicetipo& indicetipo,
                                       const indicegenero& indicegenero,
-                                      const ListaOrdenadaFilmes& listaOrdenada);
+                                      const ListaOrdenadaFilmes& listaOrdenada,
+                                      const ListaOrdenadaCinemas& cinemasOrdenadosPorPreco);
     
     // Funções auxiliares para exibição
     static void exibirFilmes(const vector<Filme*>& filmes, int limite = 50);

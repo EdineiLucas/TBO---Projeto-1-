@@ -615,6 +615,24 @@ static int buscarPrimeiroIndiceDistancia(const std::vector<IndiceDistancia>& lis
     return resultado;
 }
 
+static int buscarIndicePreco(const std::vector<Cinema*> &cinemasOrdenadosPorPreco, double preco){
+    int esquerda = 0;
+    int direita = (int)cinemasOrdenadosPorPreco.size() -1;
+    int resultado = (int)cinemasOrdenadosPorPreco.size();
+
+    while(esquerda <= direita){
+        int meio = esquerda + (direita - esquerda) / 2;
+        if(cinemasOrdenadosPorPreco[meio]->getPrecoIngresso() > preco){
+            resultado = meio;
+            direita = meio - 1;
+        }else{
+            esquerda = meio + 1;
+        }
+    }
+
+    return resultado;
+}
+
 std::vector<Filme*> buscarFilmesPorDuracao_Otimizado(const std::vector<Filme*>& filmesOrdenadosDuracao, int dur_min, int dur_max) {
     if (filmesOrdenadosDuracao.empty()) {
         return {};
@@ -847,13 +865,28 @@ std::vector<Cinema*> buscarCinemasPorTitulo_Otimizado(const std::vector<Cinema>&
     return resultado;
 }
 
+std::vector<Cinema*> buscarCinemasPorPreco(const std::vector<Cinema*> &cinemasOrdenadosPreco, double precoMax){
+    
+    if(cinemasOrdenadosPreco.empty()){
+        return{};
+    }
+
+    int fim = buscarIndicePreco(cinemasOrdenadosPreco, precoMax);
+    
+    return std::vector<Cinema*> (cinemasOrdenadosPreco.begin(), cinemasOrdenadosPreco.begin() + fim);
+}
+
 std::vector<Cinema*> buscarCinemasCombinados_Otimizado(const std::vector<Cinema>& cinemas, const std::vector<Filme*>& filmesOrdenadosPorId, const std::vector<IndiceDistancia>& listaBuscaDistancia,
     const indicetipo& listaTipos, const indicegenero& listaGeneros,
-    const ParametrosBuscaCinemas& parametros) {
+    const ParametrosBuscaCinemas& parametros, const std::vector<Cinema*>& cinemasOrdenadosPreco) {
+
     std::vector<std::vector<Cinema*>> listas;
 
     if (parametros.distanciaMax >= 0.0) {
         listas.push_back(buscarCinemasPorDistancia_Otimizado(listaBuscaDistancia, parametros.distanciaMax));
+    }
+    if (parametros.preco != 1000){
+        listas.push_back(buscarCinemasPorPreco(cinemasOrdenadosPreco, parametros.preco));
     }
     if (!parametros.tipos.empty()) {
         listas.push_back(buscarCinemasPorMultiplosTipos_Otimizado(cinemas, filmesOrdenadosPorId, parametros.tipos));

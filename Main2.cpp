@@ -104,11 +104,11 @@ int main() {
 
     // 3.5 - Lista Ordenada de Cinemas por Preço
     cout << "Criando lista de cinemas ordenada por preco..." << endl;
-    ListaOrdenadaCinemas cinemasOdenadosPorPreco(cinemas.size());
+    ListaOrdenadaCinemas cinemasOrdenadosPorPreco(cinemas.size());
     for (unsigned int i = 0; i < cinemas.size(); i++) {
-        cinemasOdenadosPorPreco.inserir(&cinemas.at(i));
+        cinemasOrdenadosPorPreco.inserir(&cinemas.at(i));
     }
-    cinemasOdenadosPorPreco.ordenar("preco");
+    cinemasOrdenadosPorPreco.ordenar("preco");
     cout << "- Lista de cinemas por preco criada" << endl;
 
     // 3.6 - Lista de Cinemas Ordenada por Distância
@@ -169,7 +169,7 @@ int main() {
                 break;
             case 2:
                 Menu::menuBuscaCinemas(filmesOrdenadosPorId, cinemas, listaBuscaDistancia, 
-                                       listaFilmesTipo, listaFIlmesGenero, filmesOrdenadosDuracao, filmesOrdenadosAno);
+                                       listaFilmesTipo, listaFIlmesGenero, filmesOrdenadosDuracao, filmesOrdenadosAno, cinemasOrdenadosPorPreco);
                 break;
             case 0:
                 cout << "\nAte logo!\n" << endl;
